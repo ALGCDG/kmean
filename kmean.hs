@@ -21,9 +21,30 @@ closest point classifications
 enumerate :: [a] -> [(a, Int)]
 enumerate list = zip list [0..]
 
-classify :: [[Float]] -> [Float] -> Int
-classify centroids point = snd(closest point (enumerate(centroids)))
+classify :: [[Float]] -> [Float] -> ([Float], Int)
+classify centroids point = (point, snd(closest point (enumerate(centroids))))
 
---update_centroids centroids points limit
---    | limit == 0 = centroids
---    | otherwise = update_centroids (map (classify centroids) points) points limit-1
+
+
+
+
+vector_sum :: [Float] -> [Float] -> [Float]
+vector_sum a b = map (\x -> fst x + snd x) pairs
+    where pairs = zip a b
+
+list_vector_sum :: [[Float]] -> [Float]
+list_vector_sum vl
+    | length vl == 2 = vector_sum (head vl) (head(tail vl))
+    | otherwise = vector_sum (head vl) (list_vector_sum (tail vl))
+
+avg_vector :: [[Float]] -> [Float]
+avg_vector vl = map (\x -> x/(fromIntegral(length vl)))  (list_vector_sum(vl))
+
+update_centroids :: [[Float]] -> [[Float]] -> Int -> [[Float]]
+update_centroids centroids points limit
+    | limit == 0 = centroids
+    | otherwise = update_centroids new_centroids points (limit-1)
+    where
+        point_class = (map (classify centroids) points)
+        new_centroids = map(\n -> avg_vector(map(\p -> fst p)(filter(\p -> snd p == n)(point_class)))) [0..((length centroids) - 1)]
+
