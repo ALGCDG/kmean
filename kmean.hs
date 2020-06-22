@@ -22,7 +22,7 @@ distance v1 v2 = sqrt (sum (map hyp (zip v1 v2)))
 
 closest :: [Float] -> [([Float], Int)] -> (Float, Int)
 closest point classifications 
-    | length classifications == 1 = (distance point (fst(head classifications)), 0)  
+    | length classifications == 1 = (distance point (fst(head classifications)), snd(head classifications))  
     | otherwise = if fst x < fst y then x else y
     where
         x = (distance point (fst(head classifications)), snd(head classifications))
