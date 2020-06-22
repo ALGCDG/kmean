@@ -1,7 +1,17 @@
---kmean k points
---    | k <= 0 = 0
---    | k == 0 = replace k 0
---    | map (classify (update_centroids (Random.Sample points) points 1000)) points
+import System.Random
+
+enumerate :: [a] -> [(a, Int)]
+enumerate list = zip list [0..]
+
+kmean :: StdGen -> Int -> [[Float]] -> [Int]
+kmean seed k points
+    | k <= 0 = [-1]
+    | k == 1 = replicate k 0
+    | otherwise = map (snd) (map (classify (update_centroids samples points 1000)) points)
+    where
+        l = (length points) - 1
+        index = (take k $ (randomRs (0, l) (seed))) :: [Int] 
+        samples = map (\x -> points !! x) index
 
 distance :: [Float] -> [Float] -> Float
 distance v1 v2 = sqrt (sum (map hyp (zip v1 v2)))
@@ -18,15 +28,8 @@ closest point classifications
         x = (distance point (fst(head classifications)), snd(head classifications))
         y = closest point (tail classifications)
 
-enumerate :: [a] -> [(a, Int)]
-enumerate list = zip list [0..]
-
 classify :: [[Float]] -> [Float] -> ([Float], Int)
 classify centroids point = (point, snd(closest point (enumerate(centroids))))
-
-
-
-
 
 vector_sum :: [Float] -> [Float] -> [Float]
 vector_sum a b = map (\x -> fst x + snd x) pairs
@@ -46,5 +49,6 @@ update_centroids centroids points limit
     | otherwise = update_centroids new_centroids points (limit-1)
     where
         point_class = (map (classify centroids) points)
-        new_centroids = map(\n -> avg_vector(map(\p -> fst p)(filter(\p -> snd p == n)(point_class)))) [0..((length centroids) - 1)]
+        classifications = [0..((length centroids) - 1)]
+        new_centroids = map (\n -> avg_vector(map (\p -> fst p) (filter (\p -> snd p == n) (point_class)))) classifications
 
