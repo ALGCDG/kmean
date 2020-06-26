@@ -1,7 +1,6 @@
 import System.Random
 
-enumerate :: [a] -> [(a, Int)]
-enumerate list = zip list [0..]
+enumerate = flip zip [0..]
 
 kmean :: StdGen -> Int -> [[Float]] -> [Int]
 kmean seed k points
@@ -11,13 +10,13 @@ kmean seed k points
     where
         l = (length points) - 1
         index = (take k $ (randomRs (0, l) (seed))) :: [Int] 
-        samples = map (\x -> points !! x) index
+        samples = map (points !!) index
 
 distance :: [Float] -> [Float] -> Float
 distance v1 v2 = sqrt (sum (map hyp (zip v1 v2)))
     where
         square x = x ** 2
-        sub x = fst x - snd x
+        sub x = uncurry (-) x
         hyp x = square (sub x)
 
 closest :: [Float] -> [([Float], Int)] -> (Float, Int)
